@@ -1,0 +1,50 @@
+@startuml Standard container diagram
+!include <C4/C4_Container>
+
+Person(newClient, "Клиент", "Обращается за консультацией по депозитам")
+Person(callCenterManager,  "Оператор кол-центра банка", "Консультирует по ставкам")
+Person(extCallCenterManager,  "Оператор партнёрского кол-центра", "Консультирует по ставкам")
+Person(backOfficeManager, "Менеджер бек-офиса", "Управляет ставками по депозитам")
+
+
+System_Boundary(standard, "Банк Стандарт") {
+    
+    ContainerQueue(kafka, "Интеграционный топик ABS", "Kafka", "Публикация событий изменения ставок")
+
+    System_Boundary(callCenter, "Кол-центр банка") {
+        Container(callCenterFront, "Фронтенд система кол-центра", "React.js", "Веб-интерфейс для операторов")
+        Container(callCenterService, "система кол-центра", "Java/Spring", "")
+        Container(callCenterExportService, "Перекладчик Kafka/SFTP", "Java/Spring", "Подписка на ставки из Kafka, Формирование и выгрузка CSV-файлов")    
+        ContainerDb(callCenterDb, "БД кол-центра", "PostgreSQL", "Хранение актуальных ставок") 
+    }
+
+    System_Boundary(abs, "АБС") {
+        Container(absService, "АБС", "Delphi", "")  
+        Container(absKafkaAdapter, "АБС Kafka Адаптер", "Java/Spring", "Публикация ставок в Kafka")  
+        ContainerDb(absDb, "БД АБС", "Oracle", "") 
+    }
+
+    Container(sftpServer, "SFTP-сервер", "SFTP", "Для передачи файлов партнёрам")
+    System_Ext(extCallCenter, "Партнёрский кол-центр")
+}
+
+Rel(callCenterManager, callCenterFront, "Использует", "HTTPS")
+Rel_D(callCenterFront, callCenterService,"Запрашивает ставки", "HTTPS/REST")
+Rel_D(callCenterService, kafka, "Подписка на ставки")
+Rel_L(callCenterService, callCenterDb, "Чтение/Запись")
+
+Rel_D(backOfficeManager, absService, "Обновляет ставки по депозитам", "Внутренний интерфейс")
+Rel(absKafkaAdapter, kafka, "Публикует  ставки",  "Kafka Protocol")
+Rel_D(absKafkaAdapter, absDb, "Чтение/Запись", "JDBC/Oracle" )
+Rel_D(absService, absDb, "Чтение/Запись", "JDBC/Oracle" )
+
+Rel_L(callCenterExportService, kafka, "Подписка на ставки",  "Kafka Protocol")
+Rel_L(callCenterExportService, sftpServer, "Выгрузка ставок",)
+Rel_D(newClient, callCenterManager, "",)
+Rel_D(newClient, extCallCenterManager, "",)
+Rel_D(extCallCenterManager, extCallCenter, "",)
+Rel_D(extCallCenter, sftpServer, "SFTP", "Читает ставки")
+
+
+
+@enduml

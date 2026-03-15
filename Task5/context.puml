@@ -1,0 +1,47 @@
+@startuml Credit process context diagram
+!include <C4/C4_Container>
+
+Person(newClient, "Новый клиент", "Хочет оформить кредит, не является клиентом банка")
+Person(existingClient, "Действующий клиент", "Является клиентом банка, имеет интернет-банк")
+Person(creditManager, "Менеджер отделения", "Оформляет кредиты в отделении")
+Person(backOfficeManager, "Менеджер бек-офиса кредитов", "Принимает решения по кредитам")
+
+System(bankWebsite, "Сайт банка", "Публичный сайт для получения информации о кредитах")
+System(internetBank, "Интернет-банк", "Личный кабинет для действующих клиентов")
+System(abs, "АБС", "")
+System(creditConveyor, "Кредитный конвейер", "Система обработки кредитных заявок (Camunda)")
+System(scoringService, "Сервис скоринга", "ML-модель для оценки кредитоспособности")
+
+System_Ext(bki, "Бюро кредитных историй", "Внешняя система с данными о клиентах")
+System_Ext(smsGateway, "СМС-шлюз", "Внешний сервис отправки уведомлений")
+
+' Новые клиенты через сайт
+Rel(newClient, bankWebsite, "Просматривает условия кредитов", "HTTPS")
+Rel(newClient, bankWebsite, "Подаёт заявку (ФИО, телефон, паспортные данные)", "HTTPS")
+Rel(bankWebsite, scoringService, "Запрашивает предодобренный скоринг", "REST API")
+Rel(scoringService, bki, "Запрашивает общие данные", "REST API")
+Rel(bankWebsite, abs, "Сохраняет заявку нового клиента", "Внутренний API")
+
+' Идентификация в отделении
+Rel(newClient, creditManager, "Обращается для идентификации", "Очно")
+Rel(creditManager, abs, "Оформляет кредит", "Внутренний интерфейс")
+
+' Действующие клиенты через интернет-банк
+Rel(existingClient, internetBank, "Просматривает условия и предодобренные предложения", "HTTPS")
+Rel(existingClient, internetBank, "Подаёт заявку и подтверждает СМС", "HTTPS")
+Rel(internetBank, creditConveyor, "Передаёт заявку", "Kafka/REST")
+Rel(creditConveyor, scoringService, "Запускает полный скоринг", "REST API")
+Rel(scoringService, bki, "Запрашивает полный отчёт", "REST API")
+Rel(scoringService, abs, "Запрашивает данные клиента", "REST API")
+Rel(backOfficeManager, creditConveyor, "Обрабатывает заявку и принимает решение", "Web UI")
+
+' Уведомления
+Rel(internetBank, smsGateway, "Отправляет СМС-код", "REST API")
+Rel(creditConveyor, smsGateway, "Отправляет уведомления о статусе", "REST API")
+Rel(newClient, smsGateway, "Получает уведомление", "SMS")
+Rel(existingClient, smsGateway, "Получает уведомление", "SMS")
+
+' Синхронизация АБС и Кредитного конвейера
+Rel(abs, creditConveyor, "Ежесуточная загрузка заявок", "Batch/SFTP")
+
+@enduml
