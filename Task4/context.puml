@@ -1,0 +1,19 @@
+@startuml Standard context diagram
+!include <C4/C4_Container>
+
+Person(client, "Клиент", "Обращается за консультацией по депозитам")
+Person(callCenterOperator, "Оператор кол-центра банка", "Консультирует по ставкам")
+Person(extCallCenterOperator, "Оператор партнёрского кол-центра", "Консультирует по ставкам")
+Person(backOfficeManager, "Менеджер бек-офиса", "Управляет ставками по депозитам")
+
+System(standardBank, "Банк Стандарт", "Система банка с АБС и интеграциями")
+System(extCallCenter, "Партнёрский кол-центр", "Внешняя система для обслуживания клиентов")
+
+Rel(client, callCenterOperator, "Обращается за консультацией", "Телефон")
+Rel(client, extCallCenterOperator, "Обращается за консультацией", "Телефон")
+Rel(callCenterOperator, standardBank, "Просматривает актуальные ставки", "HTTPS/REST")
+Rel(extCallCenterOperator, extCallCenter, "Просматривает актуальные ставки", "Внутренний интерфейс")
+Rel(backOfficeManager, standardBank, "Обновляет ставки по депозитам", "Внутренний интерфейс АБС")
+Rel(standardBank, extCallCenter, "Передаёт файл со ставками", "SFTP")
+
+@enduml

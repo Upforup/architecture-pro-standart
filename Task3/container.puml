@@ -1,0 +1,68 @@
+@startuml Standard container diagram
+!include <C4/C4_Container>
+
+Person(client, "Клиент", "")
+Person(newClient, "Новый клиент", "")
+
+Person(callCenterManager, "Менеджер кол-центра", "")
+Person(backOfficeManager, "Менеджер бек-офиса", "")
+Person(officeManager, "Менеджер отделения", "")
+
+
+System_Boundary(standard, "Standard Bank") {
+
+    System_Boundary(ibSystem, "Интернет-Банк") {
+        Container(ibApiGw, "API Gateway", "Java/Spring", "")
+        Container(ibLegacy, "Интернет-банк", "ASP.NET", "")
+        Container(ibDepositService, "Сервис депозитов ", "Java/Spring", "")
+        ContainerDb(ibDepositDb, "БД Депозитов", "PostgreSQL", "") 
+        ContainerDb(ibDb, "БД ИБ", "MS SQL", "") 
+    }
+    
+    ContainerQueue(kafka, "Интегационный топик ABS/ИБ", "Kafka", "")
+
+    Container(webSite, "сайт", "PHP/React.js", "")  
+
+    System_Boundary(callCenter, "Кол-центр") {
+        Container(callCenterService, "система кол-центра", "Java/Spring", "")  
+        ContainerDb(callCenterDb, "БД кол-центра", "PostgreSQL", "") 
+    }
+
+    System_Boundary(abs, "АБС") {
+        Container(absService, "АБС", "Delphi", "")  
+        Container(absKafkaAdapter, "АБС Адаптер", "Java/Spring", "")  
+        ContainerDb(absDb, "", "Oracle", "") 
+    }
+
+    System(SMS, "СМС-шлюз телеком-оператора", "")
+
+}
+
+Rel(newClient, webSite, "Подает заявку")
+
+Rel_D(absService, absDb, "Чтение/Запись")
+Rel_D(webSite, callCenterService, "Сохраняет заявку", "HTTPS/REST")
+Rel(webSite, kafka, "Читает ставки")
+
+Rel_D(callCenterService, callCenterDb, "Чтение/Запись")
+Rel_D(callCenterManager, callCenterService, "обрабатывает заявку")
+Rel_R(callCenterManager, newClient, "Созванивается")
+Rel_R(newClient, officeManager, "Идентификация")
+Rel_R(officeManager, absService, "Регистрирует заявку в АБС")
+Rel_D(backOfficeManager, absService, "Обрабатывает заявку в АБС, Работает со ставками")
+
+
+Rel(client, ibApiGw, "Подает заявку")
+Rel_D(ibApiGw, ibLegacy, "")
+Rel_D(ibApiGw, ibDepositService, "")
+Rel_D(ibDepositService, ibDepositDb, "Чтение/Запись")
+Rel_D(ibLegacy, ibDb, "Чтение/Запись") 
+Rel(ibDepositService, kafka, "Публикация заявок, подписка на ставки, статусы")
+Rel(absKafkaAdapter, kafka, "Подписка на новые заявки, публикация изменений статуса, публикация ставок")
+Rel_D(absKafkaAdapter, absDb, "Чтение/Запись")
+
+Rel(ibDepositService, SMS, "Отправка СМС-кода", "")
+Rel(absService, SMS, "СМС-уведомления:изменение статуса заявки", "")
+
+
+@enduml

@@ -1,0 +1,22 @@
+@startuml Standard context diagram
+!include <C4/C4_Container>
+
+Person(newClient, "Клиент", "")
+Person(callCenterManager, "Менеджер кол-центра", "")
+Person(backOfficeManager, "Менеджер бек-офиса", "")
+Person(officeManager, "Менеджер отделения", "")
+
+System(standard, "Стандарт", "Optional Description")
+
+System_Ext(SMS, "СМС-шлюз телеком-оператора", "")
+
+Rel_D(newClient, standard, "Подает заявку ", "", "")
+Rel_U(standard, callCenterManager, "уведомляет о новой заявке", "", "")
+Rel_L(callCenterManager, newClient, "Приглашает в отделение", "", "")
+Rel_L(backOfficeManager, standard, "Подтверждает заявку", "", "")
+Rel_U(officeManager, newClient, "Идентифицирует", "", "")
+Rel_U(officeManager, standard, "Регистрирует заявку", "", "")
+Rel_U(standard, SMS, "Передает уведомление", "", "")
+Rel_L(SMS, newClient, "Передает уведомление", "", "")
+
+@enduml

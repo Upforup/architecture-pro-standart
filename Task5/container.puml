@@ -1,0 +1,103 @@
+@startuml Credit process container diagram
+!include <C4/C4_Container>
+
+Person(newClient, "Новый клиент", "Хочет оформить кредит")
+Person(existingClient, "Действующий клиент", "Имеет интернет-банк")
+Person(creditManager, "Менеджер отделения", "Оформляет кредиты")
+Person(backOfficeManager, "Менеджер бек-офиса", "Принимает решения")
+
+System_Boundary(bank, "Банк Стандарт") {
+
+    System_Boundary(website, "Сайт банка") {
+        Container(webFrontend, "Веб-фронтенд", "React.js", "Публичный сайт банка")
+        Container(webApi, "API Сайта", "PHP", "Backend для работы с заявками")
+        ContainerDb(webDb, "БД Сайта", "MySQL", "Временное хранение заявок")
+    }
+
+    System_Boundary(internetBank, "Интернет-банк") {
+        Container(ibApiGw, "API Gateway", "Java/Spring", "Единая точка входа")
+        Container(ibLegacy, "Легаси Интернет-банк", "ASP.NET", "Основной функционал")
+        Container(ibCreditService, "Сервис кредитов", "Java/Spring", "Работа с кредитными заявками")
+        ContainerDb(ibDb, "БД Интернет-банка", "MS SQL", "Данные клиентов и сессий")
+    }
+
+    ContainerQueue(kafka, "Kafka", "Брокер сообщений", "Интеграционная шина")
+
+    System_Boundary(absSystem, "АБС") {
+        Container(absApp, "АБС", "Delphi", "")
+        Container(absKafkaAdapter, "АБС Kafka Адаптер", "Java/Spring", "Публикация событий в Kafka")
+        ContainerDb(absDb, "БД АБС", "Oracle", "Данные банка и клиентов")
+    }
+
+    System_Boundary(creditConveyor, "Кредитный конвейер") {
+        Container(camunda, "Camunda BPM", "Java", "Оркестрация процессов")
+        Container(conveyorApi, "API Конвейера", "Java/Spring", "REST API для заявок")
+        Container(conveyorKafkaAdapter, "Kafka Адаптер", "Java/Spring", "Интеграция с Kafka")
+        ContainerDb(conveyorDb, "БД Конвейера", "PostgreSQL", "Данные процессов")
+        Container(conveyorUi, "Web UI", "React.js", "Интерфейс для бек-офиса")
+    }
+
+    Container(scoringService, "Сервис скоринга", "Python/Flask", "ML-модель оценки клиентов")
+    ContainerDb(scoringDb, "БД Скоринга", "PostgreSQL", "Результаты скоринга")
+
+    Container(sftpServer, "SFTP-сервер", "OpenSSH", "Для пакетного обмена с АБС")
+}
+
+System_Ext(bki, "Бюро кредитных историй", "Внешний API")
+System_Ext(smsGateway, "СМС-шлюз", "Внешний сервис")
+
+' --- Сайт: новый клиент ---
+Rel(newClient, webFrontend, "Просматривает условия кредитов", "HTTPS")
+Rel(webFrontend, webApi, "Запрашивает условия", "HTTP/REST")
+Rel(webApi, conveyorApi, "Запрашивает условия кредитов", "HTTP/REST")
+
+Rel(newClient, webFrontend, "Подаёт заявку", "HTTPS")
+Rel(webFrontend, webApi, "Отправляет заявку", "HTTP/REST")
+Rel(webApi, webDb, "Сохраняет заявку временно", "JDBC")
+Rel(webApi, scoringService, "Предодобренный скоринг (по паспорту)", "HTTP/REST")
+
+Rel(scoringService, bki, "Запрашивает общие данные", "HTTPS/REST")
+Rel(scoringService, scoringDb, "Сохраняет результат", "JDBC")
+
+Rel(webApi, absKafkaAdapter, "Передаёт заявку нового клиента", "HTTP/REST")
+Rel(absKafkaAdapter, absDb, "Сохраняет заявку", "JDBC/Oracle")
+
+' --- Идентификация в отделении ---
+Rel(newClient, creditManager, "Обращается для идентификации", "Очно")
+Rel(creditManager, absApp, "Оформляет кредит по предварительной заявке", "Внутренний интерфейс")
+
+' --- Интернет-банк: действующий клиент ---
+Rel(existingClient, ibApiGw, "Авторизуется и просматривает кредиты", "HTTPS")
+Rel(ibApiGw, ibLegacy, "Маршрутизирует запросы", "HTTP/REST")
+Rel(ibApiGw, ibCreditService, "Маршрутизирует запросы", "HTTP/REST")
+Rel(ibCreditService, conveyorApi, "Запрашивает условия и предодобрения", "HTTP/REST")
+Rel(ibCreditService, ibDb, "Чтение данных клиента", "JDBC")
+
+Rel(existingClient, ibApiGw, "Подаёт заявку и подтверждает СМС", "HTTPS")
+Rel(ibApiGw, smsGateway, "Отправляет СМС-код", "HTTP/REST")
+Rel(ibCreditService, conveyorKafkaAdapter, "Публикует заявку в Kafka", "HTTP/REST")
+Rel(conveyorKafkaAdapter, kafka, "Публикует событие заявки", "Kafka Protocol")
+
+' --- Кредитный конвейер обработка ---
+Rel(conveyorKafkaAdapter, kafka, "Подписывается на заявки", "Kafka Protocol")
+Rel(conveyorKafkaAdapter, camunda, "Создаёт процесс заявки", "Внутренний API")
+Rel(camunda, scoringService, "Запускает полный скоринг", "HTTP/REST")
+Rel(scoringService, bki, "Запрашивает полный отчёт", "HTTPS/REST")
+Rel(scoringService, absKafkaAdapter, "Запрашивает данные клиента", "HTTP/REST")
+Rel(absKafkaAdapter, absDb, "Читает данные клиента", "JDBC/Oracle")
+
+Rel(camunda, conveyorDb, "Хранит процесс", "JDBC")
+Rel(backOfficeManager, conveyorUi, "Обрабатывает заявку и принимает решение", "HTTPS")
+Rel(conveyorUi, camunda, "Управляет процессом", "Внутренний API")
+
+' --- Уведомления ---
+Rel(camunda, conveyorKafkaAdapter, "Публикует статус", "Внутренний API")
+Rel(conveyorKafkaAdapter, kafka, "Публикует событие статуса", "Kafka Protocol")
+Rel(ibCreditService, kafka, "Подписывается на статусы", "Kafka Protocol")
+Rel(ibCreditService, smsGateway, "Отправляет уведомление", "HTTP/REST")
+
+' --- Синхронизация АБС и Конвейера ---
+Rel(absApp, sftpServer, "Выгружает заявки раз в сутки", "SFTP")
+Rel(camunda, sftpServer, "Забирает заявки из АБС", "SFTP")
+
+@enduml
