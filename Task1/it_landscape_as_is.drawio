@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0" version="29.6.1">
   <diagram name="Page-1" id="26djJBAOJ3TKKpfWp793">
-    <mxGraphModel dx="1945" dy="1113" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1795" dy="1028" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -338,6 +338,31 @@
         </mxCell>
         <mxCell id="0AyNBDEtlEt9mz9YFEN_-112" parent="1" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=inherit;overflow=hidden;fillColor=none;top=0;left=0;bottom=0;right=0;pointerEvents=1;fontColor=light-dark(#000000,#040404);labelBackgroundColor=none;align=left;verticalAlign=top;" value="&lt;strong style=&quot;box-sizing: inherit; color: rgb(214, 214, 214); font-family: &amp;quot;YS Text&amp;quot;, sans-serif; font-size: 18px; white-space-collapse: preserve-breaks;&quot;&gt;АБС&lt;/strong&gt;" vertex="1">
           <mxGeometry height="87" width="230" x="900" y="363" as="geometry">
+            <mxRectangle height="87" width="230" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DeOQxLP9ID4mzR027RVZ-1" parent="1" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=inherit;overflow=hidden;fillColor=none;top=0;left=0;bottom=0;right=0;pointerEvents=1;fontColor=light-dark(#000000,#040404);labelBackgroundColor=none;align=left;verticalAlign=top;" value="&lt;strong style=&quot;box-sizing: inherit; color: rgb(214, 214, 214); font-family: &amp;quot;YS Text&amp;quot;, sans-serif; font-size: 18px; white-space-collapse: preserve-breaks;&quot;&gt;АБС&lt;/strong&gt;" vertex="1">
+          <mxGeometry height="87" width="230" x="390" y="276" as="geometry">
+            <mxRectangle height="87" width="230" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DeOQxLP9ID4mzR027RVZ-2" parent="1" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=inherit;overflow=hidden;fillColor=none;top=0;left=0;bottom=0;right=0;pointerEvents=1;fontColor=light-dark(#000000,#040404);labelBackgroundColor=none;align=left;verticalAlign=top;" value="&lt;strong style=&quot;box-sizing: inherit; color: rgb(214, 214, 214); font-family: &amp;quot;YS Text&amp;quot;, sans-serif; font-size: 18px; white-space-collapse: preserve-breaks;&quot;&gt;Система кол-центра&lt;/strong&gt;" vertex="1">
+          <mxGeometry height="87" width="260" x="630" y="270" as="geometry">
+            <mxRectangle height="87" width="260" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DeOQxLP9ID4mzR027RVZ-3" parent="1" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=inherit;overflow=hidden;fillColor=none;top=0;left=0;bottom=0;right=0;pointerEvents=1;fontColor=light-dark(#000000,#040404);labelBackgroundColor=none;align=left;verticalAlign=top;" value="&lt;strong style=&quot;box-sizing: inherit; color: rgb(214, 214, 214); font-family: &amp;quot;YS Text&amp;quot;, sans-serif; font-size: 18px; white-space-collapse: preserve-breaks;&quot;&gt;АБС&lt;/strong&gt;" vertex="1">
+          <mxGeometry height="87" width="230" x="1120" y="276" as="geometry">
+            <mxRectangle height="87" width="230" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DeOQxLP9ID4mzR027RVZ-4" parent="1" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=inherit;overflow=hidden;fillColor=none;top=0;left=0;bottom=0;right=0;pointerEvents=1;fontColor=light-dark(#000000,#040404);labelBackgroundColor=none;align=left;verticalAlign=top;" value="&lt;strong style=&quot;box-sizing: inherit; color: rgb(214, 214, 214); font-family: &amp;quot;YS Text&amp;quot;, sans-serif; font-size: 18px; white-space-collapse: preserve-breaks;&quot;&gt;АБС&lt;/strong&gt;" vertex="1">
+          <mxGeometry height="87" width="230" x="1350" y="276" as="geometry">
+            <mxRectangle height="87" width="230" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DeOQxLP9ID4mzR027RVZ-5" parent="1" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=inherit;overflow=hidden;fillColor=none;top=0;left=0;bottom=0;right=0;pointerEvents=1;fontColor=light-dark(#000000,#040404);labelBackgroundColor=none;align=left;verticalAlign=top;" value="&lt;strong style=&quot;box-sizing: inherit; color: rgb(214, 214, 214); font-family: &amp;quot;YS Text&amp;quot;, sans-serif; font-size: 18px; white-space-collapse: preserve-breaks;&quot;&gt;АБС&lt;/strong&gt;" vertex="1">
+          <mxGeometry height="87" width="230" x="1580" y="276" as="geometry">
             <mxRectangle height="87" width="230" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
